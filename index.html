@@ -108,8 +108,9 @@
 
 <script>
 (function() {
-  var API_URL = "https://script.google.com/macros/s/AKfycbwPC_6TFpM4fEg7FS1T0U5cYSOH9zCUtKKlgYcp2KxiDvNqyiUhMEEzFaBZ0TLntC442g/exec";
-  var THRESHOLD = 30; // เกณฑ์เตือนสต็อกใกล้หมด (แก้เลขนี้ได้ตรงนี้)
+  // ใส่ลิงก์ของคุณให้เรียบร้อยแล้วครับ
+  var API_URL = "https://sheetdb.io/api/v1/wfm3ihef3x0pp";
+  var THRESHOLD = 30; 
   var BAR_COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#a855f7", "#ec4899", "#06b6d4", "#f97316", "#84cc16"];
 
   var state = { products: [], updatedAt: null, loaded: false };
@@ -158,7 +159,7 @@
         return res.json();
       })
       .then(function(data) {
-        state.products = data.products || [];
+        state.products = Array.isArray(data) ? data : (data.products || []);
         state.updatedAt = new Date();
         state.loaded = true;
         setStatus(true);
@@ -168,7 +169,7 @@
       .catch(function() {
         setStatus(false);
         if (!state.loaded) {
-          showError("เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");
+          showError("เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ตหรือลิงก์ API");
         }
       });
   }
@@ -295,3 +296,4 @@
 </script>
 </body>
 </html>
+
