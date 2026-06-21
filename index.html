@@ -108,15 +108,28 @@
 
 <script>
 (function() {
-  // ใส่ลิงก์ของคุณให้เรียบร้อยแล้วครับ
   var API_URL = "https://sheetdb.io/api/v1/wfm3ihef3x0pp";
   var THRESHOLD = 30; 
-  var BAR_COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#a855f7", "#ec4899", "#06b6d4", "#f97316", "#84cc16"];
 
   var state = { products: [], updatedAt: null, loaded: false };
   var chart = null;
 
   function fmtNum(n) { return Math.round(n).toLocaleString("th-TH"); }
+
+  // ฟังก์ชันจับคู่สีตามชื่อสินค้า
+  function getColorByName(name) {
+    if (!name) return { bg: "#cbd5e1", border: "#cbd5e1" };
+    if (name.includes("กะทิ")) {
+      return { bg: "#f5f5f4", border: "#d6d3d1" }; // สีขาวครีม ขอบเทาอ่อน
+    }
+    if (name.includes("มะพร้าว")) {
+      return { bg: "#22c55e", border: "#16a34a" }; // สีเขียวมะพร้าว
+    }
+    if (name.includes("เปรี้ยวหวาน")) {
+      return { bg: "#854d0e", border: "#713f12" }; // สีน้ำตาล
+    }
+    return { bg: "#3b82f6", border: "#2563eb" }; // สีฟ้า (กรณีมีสินค้าอื่นเพิ่มมา)
+  }
 
   function showError(msg) {
     var box = document.getElementById("err-box");
@@ -177,16 +190,18 @@
   function renderChart() {
     var labels = state.products.map(function(p) { return p.name; });
     var values = state.products.map(function(p) { return Number(p.stock) || 0; });
-    var colors = state.products.map(function(p, i) {
-      return (Number(p.stock) || 0) <= THRESHOLD ? "#dc2626" : BAR_COLORS[i % BAR_COLORS.length];
-    });
+    
+    // ตั้งค่าสีของกราฟแท่งตามเงื่อนไขชื่อสินค้า
+    var bgColors = state.products.map(function(p) { return getColorByName(p.name).bg; });
+    var borderColors = state.products.map(function(p) { return getColorByName(p.name).border; });
 
     var ctx = document.getElementById("stock-chart").getContext("2d");
 
     if (chart) {
       chart.data.labels = labels;
       chart.data.datasets[0].data = values;
-      chart.data.datasets[0].backgroundColor = colors;
+      chart.data.datasets[0].backgroundColor = bgColors;
+      chart.data.datasets[0].borderColor = borderColors;
       chart.update();
       return;
     }
@@ -198,9 +213,11 @@
         datasets: [{
           label: "คงเหลือ (ชิ้น)",
           data: values,
-          backgroundColor: colors,
-          borderRadius: 8,
-          maxBarThickness: 56
+          backgroundColor: bgColors,
+          borderColor: borderColors,
+          borderWidth: 1.5,
+          borderRadius: 6,
+          maxBarThickness: 52
         }]
       },
       options: {
@@ -250,6 +267,7 @@
     state.products.forEach(function(p, i) {
       var stockNum = Number(p.stock) || 0;
       var isLow = stockNum <= THRESHOLD;
+      var itemColors = getColorByName(p.name);
 
       var card = document.createElement("div");
       card.className = "card" + (isLow ? " danger-card" : "");
@@ -258,7 +276,10 @@
       left.className = "name-wrap";
       var swatch = document.createElement("span");
       swatch.className = "swatch";
-      swatch.style.background = isLow ? "#dc2626" : BAR_COLORS[i % BAR_COLORS.length];
+      // จุดสีหน้าชื่อสินค้าจะเปลี่ยนตามสีสูตรด้วยเพื่อความสอดคล้อง
+      swatch.style.background = itemColors.bg;
+      swatch.style.border = "1px solid " + itemColors.border;
+      
       var nameP = document.createElement("p");
       nameP.className = "name";
       nameP.textContent = p.name;
@@ -296,4 +317,3 @@
 </script>
 </body>
 </html>
-
