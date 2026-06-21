@@ -108,27 +108,81 @@
 
 <script>
 (function() {
-  var API_URL = "https://sheetdb.io/api/v1/wfm3ihef3x0pp";
+  // ผมแปลงลิงก์สเปรดชีตของคุณให้เป็นรูปแบบดึงไฟล์ CSV ฟรีตลอดชีพเรียบร้อยครับ
+  var CSV_URL = "https://docs.google.com/spreadsheets/d/1nJIyKXxm3iuA526t9tA9Ka1W6mUagXnynwvNPzbPtdg/export?format=csv";
+  
   var THRESHOLD = 30; 
+  var BAR_COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#a855f7", "#ec4899", "#06b6d4", "#f97316", "#84cc16"];
 
   var state = { products: [], updatedAt: null, loaded: false };
   var chart = null;
 
   function fmtNum(n) { return Math.round(n).toLocaleString("th-TH"); }
 
-  // ฟังก์ชันจับคู่สีตามชื่อสินค้า
   function getColorByName(name) {
     if (!name) return { bg: "#cbd5e1", border: "#cbd5e1" };
-    if (name.includes("กะทิ")) {
-      return { bg: "#f5f5f4", border: "#d6d3d1" }; // สีขาวครีม ขอบเทาอ่อน
+    if (name.includes("กะทิ")) return { bg: "#f5f5f4", border: "#d6d3d1" };
+    if (name.includes("มะพร้าว")) return { bg: "#22c55e", border: "#16a34a" };
+    if (name.includes("เปรี้ยวหวาน")) return { bg: "#854d0e", border: "#713f12" };
+    return { bg: "#3b82f6", border: "#2563eb" };
+  }
+
+  // ระบบจัดการแกะข้อมูลจากไฟล์ CSV ของ Google Sheets
+  function parseCSV(text) {
+    var lines = text.split("\n");
+    if (lines.length < 2) return [];
+    
+    // แกะหัวข้อคอลัมน์แถวที่ 1
+    var headers = lines[0].split(",").map(function(h) { 
+      return h.trim().replace(/^"|"$/g, '').toLowerCase(); 
+    });
+    
+    var nameIdx = headers.indexOf("name");
+    var stockIdx = headers.indexOf("stock");
+    
+    // ถ้าหาหัวคอลัมน์ไม่เจอ ลองแกะแบบล้างเครื่องหมายคำพูดเผื่อไว้
+    if (nameIdx === -1 || stockIdx === -1) {
+      for(var k=0; k<headers.length; k++) {
+        if(headers[k].includes("name")) nameIdx = k;
+        if(headers[k].includes("stock")) stockIdx = k;
+      }
     }
-    if (name.includes("มะพร้าว")) {
-      return { bg: "#22c55e", border: "#16a34a" }; // สีเขียวมะพร้าว
+    
+    if (nameIdx === -1 || stockIdx === -1) return [];
+
+    var results = [];
+    for (var i = 1; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (!line) continue;
+      
+      // แยกคอลัมน์ (รองรับกรณีชื่อสินค้ามีเครื่องหมายคำพูดครอบ)
+      var cols = [];
+      var insideQuote = false;
+      var currentWord = "";
+      
+      for (var j = 0; j < line.length; j++) {
+        var char = line[j];
+        if (char === '"') {
+          insideQuote = !insideQuote;
+        } else if (char === ',' && !insideQuote) {
+          cols.push(currentWord);
+          currentWord = "";
+        } else {
+          currentWord += char;
+        }
+      }
+      cols.push(currentWord);
+      
+      if (cols.length <= Math.max(nameIdx, stockIdx)) continue;
+      
+      var pName = cols[nameIdx].trim().replace(/^"|"$/g, '');
+      var pStock = cols[stockIdx].trim().replace(/^"|"$/g, '');
+      
+      if(pName) {
+        results.push({ name: pName, stock: pStock });
+      }
     }
-    if (name.includes("เปรี้ยวหวาน")) {
-      return { bg: "#854d0e", border: "#713f12" }; // สีน้ำตาล
-    }
-    return { bg: "#3b82f6", border: "#2563eb" }; // สีฟ้า (กรณีมีสินค้าอื่นเพิ่มมา)
+    return results;
   }
 
   function showError(msg) {
@@ -166,23 +220,30 @@
   }
 
   function fetchProducts() {
-    return fetch(API_URL)
+    // ใส่ระบบห้อยเวลาท้ายลิงก์กันการดึงข้อมูลเก่าซ้ำ (Anti-cache)
+    return fetch(CSV_URL + "&t=" + new Date().getTime())
       .then(function(res) {
         if (!res.ok) throw new Error("network");
-        return res.json();
+        return res.text();
       })
-      .then(function(data) {
-        state.products = Array.isArray(data) ? data : (data.products || []);
+      .then(function(csvText) {
+        var parsedData = parseCSV(csvText);
+        if(parsedData.length === 0 && state.products.length > 0) {
+          // ถ้าดึงข้อมูลรอบใหม่แล้วเอ๋อ ให้ใช้ข้อมูลเดิมก่อน
+          return;
+        }
+        state.products = parsedData;
         state.updatedAt = new Date();
         state.loaded = true;
         setStatus(true);
         clearError();
         render();
       })
-      .catch(function() {
+      .catch(function(e) {
+        console.error(e);
         setStatus(false);
         if (!state.loaded) {
-          showError("เชื่อมต่อ Google Sheet ไม่ได้ ตรวจสอบอินเทอร์เน็ตหรือลิงก์ API");
+          showError("เชื่อมต่อ Google Sheet ไม่ได้ กรุณาตรวจสอบการตั้งค่าแชร์ลิงก์");
         }
       });
   }
@@ -190,8 +251,6 @@
   function renderChart() {
     var labels = state.products.map(function(p) { return p.name; });
     var values = state.products.map(function(p) { return Number(p.stock) || 0; });
-    
-    // ตั้งค่าสีของกราฟแท่งตามเงื่อนไขชื่อสินค้า
     var bgColors = state.products.map(function(p) { return getColorByName(p.name).bg; });
     var borderColors = state.products.map(function(p) { return getColorByName(p.name).border; });
 
@@ -276,7 +335,6 @@
       left.className = "name-wrap";
       var swatch = document.createElement("span");
       swatch.className = "swatch";
-      // จุดสีหน้าชื่อสินค้าจะเปลี่ยนตามสีสูตรด้วยเพื่อความสอดคล้อง
       swatch.style.background = itemColors.bg;
       swatch.style.border = "1px solid " + itemColors.border;
       
@@ -312,7 +370,7 @@
   }
 
   fetchProducts();
-  setInterval(fetchProducts, 10000);
+  setInterval(fetchProducts, 10000); // ดึงอัปเดตทุกๆ 10 วินาทีแบบฟรีตลอดชีพ
 })();
 </script>
 </body>
