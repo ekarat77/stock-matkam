@@ -4,70 +4,76 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>เช็คสต็อกสินค้า</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: -apple-system, "Segoe UI", "Sarabun", "Noto Sans Thai", sans-serif;
-    background: #fafaf9;
+    background: linear-gradient(180deg, #f0fdf4 0%, #fafaf9 220px);
     color: #1c1917;
   }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 24px 16px 60px; }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 24px 16px 60px; }
   .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-  h1 { font-size: 20px; font-weight: 600; margin: 0; }
-  .status { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  h1 { font-size: 21px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px; }
+  h1 .emoji { font-size: 22px; }
+  .status { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; }
   .status.online { color: #059669; }
   .status.offline { color: #dc2626; }
   .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-  .dot.online { background: #10b981; }
+  .dot.online { background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
   .dot.offline { background: #dc2626; }
   .updated { font-size: 12px; color: #a8a29e; margin: 0 0 20px; }
-  .stats { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin-bottom: 24px; }
-  .stat-card { background: #f5f5f4; border-radius: 10px; padding: 14px; }
-  .stat-label { font-size: 12px; color: #78716c; margin: 0 0 4px; }
-  .stat-value { font-size: 19px; font-weight: 600; margin: 0; }
+
+  .stats { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat-card {
+    background: #fff; border-radius: 14px; padding: 16px;
+    border: 1px solid #e7e5e4; box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .stat-label { font-size: 12px; color: #78716c; margin: 0 0 6px; font-weight: 500; }
+  .stat-value { font-size: 22px; font-weight: 700; margin: 0; color: #166534; }
   .stat-value.danger { color: #dc2626; }
-  .section-label { font-size: 13px; color: #78716c; margin: 0 0 8px; }
-  .list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-  .card { background: #fff; border: 1px solid #e7e5e4; border-radius: 12px; padding: 12px; }
-  .row { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
-  .name { font-size: 15px; font-weight: 500; margin: 0; }
+
+  .chart-card {
+    background: #fff; border-radius: 16px; padding: 18px 16px 8px;
+    border: 1px solid #e7e5e4; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin-bottom: 24px;
+  }
+  .chart-title { font-size: 14px; font-weight: 600; margin: 0 0 12px; color: #292524; }
+  .chart-wrap { position: relative; height: 260px; }
+
+  .section-label { font-size: 13px; color: #78716c; margin: 0 0 10px; font-weight: 600; }
+  .list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .card {
+    background: #fff; border: 1px solid #e7e5e4; border-radius: 14px; padding: 14px 16px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .card.danger-card { border-color: #fecaca; background: #fffafa; }
+  .name-wrap { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .name { font-size: 15px; font-weight: 600; margin: 0; }
   .stock-right { text-align: right; flex-shrink: 0; white-space: nowrap; }
-  .stock-num { font-size: 17px; font-weight: 600; margin: 0; }
+  .stock-num { font-size: 18px; font-weight: 700; margin: 0; color: #166534; }
   .stock-num.danger { color: #dc2626; }
-  .low-tag { font-size: 11px; color: #dc2626; margin: 0; }
-  .actions { margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0efed; display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
-  button {
-    font-family: inherit; font-size: 12px; padding: 7px 12px; border-radius: 8px;
-    border: 1px solid #d6d3d1; background: #fff; cursor: pointer; color: #1c1917;
+  .low-tag {
+    font-size: 11px; color: #b91c1c; margin: 2px 0 0; font-weight: 600;
+    background: #fef2f2; padding: 2px 8px; border-radius: 999px; display: inline-block;
   }
-  button:hover { background: #f5f5f4; }
-  button:active { transform: scale(0.98); }
-  button:disabled { opacity: 0.4; cursor: not-allowed; }
-  button.primary { background: #059669; color: #fff; border-color: #059669; }
-  button.primary:hover { background: #047857; }
-  input {
-    font-family: inherit; font-size: 13px; padding: 7px 10px; border-radius: 8px;
-    border: 1px solid #d6d3d1; outline: none; width: 100px;
-  }
-  input:focus { border-color: #059669; box-shadow: 0 0 0 2px rgba(5,150,105,0.15); }
-  .field label { display: block; font-size: 11px; color: #78716c; margin-bottom: 3px; }
+
   .err {
-    margin-bottom: 16px; padding: 9px 12px; background: #fef2f2; border: 1px solid #fecaca;
-    border-radius: 8px; font-size: 13px; color: #b91c1c; display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; padding: 10px 14px; background: #fef2f2; border: 1px solid #fecaca;
+    border-radius: 10px; font-size: 13px; color: #b91c1c; display: flex; justify-content: space-between; align-items: center;
   }
-  .err button { background: none; border: none; color: #b91c1c; font-size: 14px; padding: 0 4px; }
-  .footer-note { font-size: 11px; color: #a8a29e; margin-top: 24px; text-align: center; }
-  .threshold-row { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 13px; color: #78716c; }
-  .threshold-row input { width: 70px; }
-  .loading { font-size: 13px; color: #a8a29e; padding: 40px 0; text-align: center; }
-  .saving-tag { font-size: 11px; color: #a8a29e; }
+  .err button { background: none; border: none; color: #b91c1c; font-size: 14px; padding: 0 4px; cursor: pointer; }
+  .footer-note { font-size: 11px; color: #a8a29e; margin-top: 24px; text-align: center; line-height: 1.6; }
+  .loading { font-size: 13px; color: #a8a29e; padding: 60px 0; text-align: center; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="header">
-    <h1>เช็คสต็อกสินค้า</h1>
+    <h1><span class="emoji">📦</span> เช็คสต็อกสินค้า</h1>
     <div class="status online" id="status-box"><span class="dot online" id="status-dot"></span><span id="status-text">กำลังเชื่อมต่อ</span></div>
   </div>
   <p class="updated" id="updated-text">กำลังโหลด...</p>
@@ -77,19 +83,18 @@
   <div id="main-content" style="display:none;">
     <div class="stats">
       <div class="stat-card">
-        <p class="stat-label">สต็อกรวม</p>
+        <p class="stat-label">สต็อกรวมทั้งหมด</p>
         <p class="stat-value" id="stat-stock">0 ชิ้น</p>
       </div>
       <div class="stat-card">
-        <p class="stat-label">ใกล้หมด</p>
+        <p class="stat-label">ใกล้หมด (≤ 30 ชิ้น)</p>
         <p class="stat-value" id="stat-low">0 รายการ</p>
       </div>
     </div>
 
-    <div class="threshold-row">
-      <span>เตือนเมื่อสต็อกเหลือไม่เกิน</span>
-      <input type="number" min="0" id="threshold-input" value="30">
-      <span>ชิ้น</span>
+    <div class="chart-card">
+      <p class="chart-title">เปรียบเทียบสต็อกแต่ละสูตร</p>
+      <div class="chart-wrap"><canvas id="stock-chart"></canvas></div>
     </div>
 
     <p class="section-label">รายการสินค้า</p>
@@ -98,28 +103,19 @@
 
   <div class="loading" id="loading-box">กำลังโหลดข้อมูล...</div>
 
-  <p class="footer-note">ข้อมูลนี้แชร์ร่วมกันทุกคนที่เปิดลิงก์นี้ ผ่าน Google Sheet · อัปเดตอัตโนมัติทุก 10 วินาที</p>
+  <p class="footer-note">หน้านี้สำหรับดูข้อมูลอย่างเดียว · ดึงข้อมูลจาก Google Sheet โดยตรง<br>อัปเดตอัตโนมัติทุก 10 วินาที</p>
 </div>
 
 <script>
 (function() {
   var API_URL = "https://script.google.com/macros/s/AKfycbwPC_6TFpM4fEg7FS1T0U5cYSOH9zCUtKKlgYcp2KxiDvNqyiUhMEEzFaBZ0TLntC442g/exec";
-  var THRESHOLD_KEY = "matkam-threshold-local";
+  var THRESHOLD = 30; // เกณฑ์เตือนสต็อกใกล้หมด (แก้เลขนี้ได้ตรงนี้)
+  var BAR_COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#a855f7", "#ec4899", "#06b6d4", "#f97316", "#84cc16"];
 
-  var state = { products: [], threshold: 30, updatedAt: null, editingRow: null, loaded: false, saving: false };
+  var state = { products: [], updatedAt: null, loaded: false };
+  var chart = null;
 
   function fmtNum(n) { return Math.round(n).toLocaleString("th-TH"); }
-
-  function loadThreshold() {
-    try {
-      var t = localStorage.getItem(THRESHOLD_KEY);
-      if (t !== null) state.threshold = parseInt(t, 10);
-    } catch (e) {}
-  }
-
-  function saveThreshold() {
-    try { localStorage.setItem(THRESHOLD_KEY, String(state.threshold)); } catch (e) {}
-  }
 
   function showError(msg) {
     var box = document.getElementById("err-box");
@@ -177,25 +173,52 @@
       });
   }
 
-  function updateStock(row, newStock) {
-    state.saving = true;
-    render();
-    return fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ row: row, stock: newStock })
-    })
-      .then(function(res) {
-        if (!res.ok) throw new Error("network");
-        return fetchProducts();
-      })
-      .catch(function() {
-        showError("บันทึกไม่สำเร็จ ลองอีกครั้ง");
-      })
-      .finally(function() {
-        state.saving = false;
-        render();
-      });
+  function renderChart() {
+    var labels = state.products.map(function(p) { return p.name; });
+    var values = state.products.map(function(p) { return Number(p.stock) || 0; });
+    var colors = state.products.map(function(p, i) {
+      return (Number(p.stock) || 0) <= THRESHOLD ? "#dc2626" : BAR_COLORS[i % BAR_COLORS.length];
+    });
+
+    var ctx = document.getElementById("stock-chart").getContext("2d");
+
+    if (chart) {
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = values;
+      chart.data.datasets[0].backgroundColor = colors;
+      chart.update();
+      return;
+    }
+
+    chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "คงเหลือ (ชิ้น)",
+          data: values,
+          backgroundColor: colors,
+          borderRadius: 8,
+          maxBarThickness: 56
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) { return "คงเหลือ " + fmtNum(ctx.parsed.y) + " ชิ้น"; }
+            }
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "#f0efed" } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
   }
 
   function render() {
@@ -207,7 +230,7 @@
     var totalStock = 0, lowCount = 0;
     state.products.forEach(function(p) {
       totalStock += Number(p.stock) || 0;
-      if ((Number(p.stock) || 0) <= state.threshold) lowCount++;
+      if ((Number(p.stock) || 0) <= THRESHOLD) lowCount++;
     });
 
     document.getElementById("stat-stock").textContent = fmtNum(totalStock) + " ชิ้น";
@@ -218,28 +241,29 @@
     var updatedText = state.updatedAt
       ? "อัปเดตล่าสุด " + state.updatedAt.toLocaleString("th-TH", { dateStyle: "short", timeStyle: "medium" })
       : "";
-    if (state.saving) updatedText += " · กำลังบันทึก...";
     document.getElementById("updated-text").textContent = updatedText;
 
-    document.getElementById("threshold-input").value = state.threshold;
+    renderChart();
 
     var list = document.getElementById("product-list");
     list.innerHTML = "";
 
-    state.products.forEach(function(p) {
+    state.products.forEach(function(p, i) {
       var stockNum = Number(p.stock) || 0;
-      var isLow = stockNum <= state.threshold;
-      var isEditing = state.editingRow === p.row;
-      var card = document.createElement("div");
-      card.className = "card";
+      var isLow = stockNum <= THRESHOLD;
 
-      var row = document.createElement("div");
-      row.className = "row";
+      var card = document.createElement("div");
+      card.className = "card" + (isLow ? " danger-card" : "");
 
       var left = document.createElement("div");
+      left.className = "name-wrap";
+      var swatch = document.createElement("span");
+      swatch.className = "swatch";
+      swatch.style.background = isLow ? "#dc2626" : BAR_COLORS[i % BAR_COLORS.length];
       var nameP = document.createElement("p");
       nameP.className = "name";
       nameP.textContent = p.name;
+      left.appendChild(swatch);
       left.appendChild(nameP);
 
       var right = document.createElement("div");
@@ -251,101 +275,16 @@
       if (isLow) {
         var lowP = document.createElement("p");
         lowP.className = "low-tag";
-        lowP.textContent = "สต็อกใกล้หมด";
+        lowP.textContent = "ใกล้หมด";
         right.appendChild(lowP);
       }
 
-      row.appendChild(left);
-      row.appendChild(right);
-      card.appendChild(row);
-
-      var actions = document.createElement("div");
-      actions.className = "actions";
-
-      if (isEditing) {
-        var stockField = document.createElement("div");
-        stockField.className = "field";
-        var stockLabel = document.createElement("label");
-        stockLabel.textContent = "สต็อกคงเหลือ";
-        var stockInput = document.createElement("input");
-        stockInput.type = "number";
-        stockInput.min = "0";
-        stockInput.value = stockNum;
-        stockInput.id = "edit-stock-" + p.row;
-        stockField.appendChild(stockLabel);
-        stockField.appendChild(stockInput);
-
-        var saveBtn = document.createElement("button");
-        saveBtn.className = "primary";
-        saveBtn.textContent = "บันทึก";
-        saveBtn.disabled = state.saving;
-        saveBtn.onclick = function() {
-          var sNum = parseInt(document.getElementById("edit-stock-" + p.row).value, 10);
-          if (isNaN(sNum) || sNum < 0) {
-            showError("กรุณาใส่ตัวเลขที่ถูกต้อง");
-            return;
-          }
-          clearError();
-          state.editingRow = null;
-          updateStock(p.row, sNum);
-        };
-
-        var cancelBtn = document.createElement("button");
-        cancelBtn.textContent = "ยกเลิก";
-        cancelBtn.onclick = function() {
-          state.editingRow = null;
-          render();
-        };
-
-        actions.appendChild(stockField);
-        actions.appendChild(saveBtn);
-        actions.appendChild(cancelBtn);
-      } else {
-        var minusBtn = document.createElement("button");
-        minusBtn.textContent = "− 1 ชิ้น";
-        minusBtn.disabled = stockNum <= 0 || state.saving;
-        minusBtn.onclick = function() {
-          updateStock(p.row, Math.max(0, stockNum - 1));
-        };
-
-        var plusBtn = document.createElement("button");
-        plusBtn.textContent = "+ 1 ชิ้น";
-        plusBtn.disabled = state.saving;
-        plusBtn.onclick = function() {
-          updateStock(p.row, stockNum + 1);
-        };
-
-        var editBtn = document.createElement("button");
-        editBtn.textContent = "แก้ไขตัวเลข";
-        editBtn.disabled = state.saving;
-        editBtn.onclick = function() {
-          state.editingRow = p.row;
-          render();
-        };
-
-        actions.appendChild(minusBtn);
-        actions.appendChild(plusBtn);
-        actions.appendChild(editBtn);
-      }
-
-      card.appendChild(actions);
+      card.appendChild(left);
+      card.appendChild(right);
       list.appendChild(card);
     });
   }
 
-  document.getElementById("threshold-input").onchange = function(e) {
-    var val = parseInt(e.target.value, 10);
-    if (isNaN(val) || val < 0) {
-      showError("กรุณาใส่ตัวเลขที่ถูกต้อง");
-      return;
-    }
-    clearError();
-    state.threshold = val;
-    saveThreshold();
-    render();
-  };
-
-  loadThreshold();
   fetchProducts();
   setInterval(fetchProducts, 10000);
 })();
