@@ -1,3 +1,4 @@
+HTML
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -345,4 +346,25 @@ function renderSalesLine(hourlySales) {
   }
 }
 
-function renderFeed(
+function renderFeed(liveFeed) {
+  const list = document.getElementById("feed-list");
+  list.innerHTML = "";
+
+  if (!liveFeed || liveFeed.length === 0) {
+    list.innerHTML = `<div class="feed-item" style="color: #8b8a99; justify-content: center;">ยังไม่มีกิจกรรมออเดอร์ในวันนี้</div>`;
+    return;
+  }
+
+  liveFeed.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "feed-item";
+    div.innerHTML = `<span class="t">[${item.time}]</span><span>${item.text}</span>`;
+    list.appendChild(div);
+  });
+}
+
+fetchDashboardData();
+setInterval(fetchDashboardData, 60000);
+</script>
+</body>
+</html>
