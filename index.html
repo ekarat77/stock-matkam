@@ -3,375 +3,344 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>เช็คสต็อกสินค้า</title>
+<title>MATKAM LIVE CONTROL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500;700;900&family=Noto+Sans+Thai:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
   body {
-    margin: 0;
-    font-family: -apple-system, "Segoe UI", "Sarabun", "Noto Sans Thai", sans-serif;
-    background: linear-gradient(180deg, #f0fdf4 0%, #fafaf9 220px);
-    color: #1c1917;
+    background: radial-gradient(circle at 15% 0%, #1a1322 0%, #07070b 45%, #07070b 100%);
+    color: #f5f1ea;
+    font-family: "Noto Sans Thai", sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
   }
-  .wrap { max-width: 680px; margin: 0 auto; padding: 24px 16px 60px; }
-  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-  h1 { font-size: 21px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px; }
-  h1 .emoji { font-size: 22px; }
-  .status { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; }
-  .status.online { color: #059669; }
-  .status.offline { color: #dc2626; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-  .dot.online { background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
-  .dot.offline { background: #dc2626; }
-  .updated { font-size: 12px; color: #a8a29e; margin: 0 0 20px; }
+  .display { font-family: "Kanit", "Noto Sans Thai", sans-serif; }
 
-  .stats { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
-  .stat-card {
-    background: #fff; border-radius: 14px; padding: 16px;
-    border: 1px solid #e7e5e4; box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-  }
-  .stat-label { font-size: 12px; color: #78716c; margin: 0 0 6px; font-weight: 500; }
-  .stat-value { font-size: 22px; font-weight: 700; margin: 0; color: #166534; }
-  .stat-value.danger { color: #dc2626; }
-
-  .chart-card {
-    background: #fff; border-radius: 16px; padding: 18px 16px 8px;
-    border: 1px solid #e7e5e4; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    margin-bottom: 24px;
-  }
-  .chart-title { font-size: 14px; font-weight: 600; margin: 0 0 12px; color: #292524; }
-  .chart-wrap { position: relative; height: 260px; }
-
-  .section-label { font-size: 13px; color: #78716c; margin: 0 0 10px; font-weight: 600; }
-  .list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-  .card {
-    background: #fff; border: 1px solid #e7e5e4; border-radius: 14px; padding: 14px 16px;
-    display: flex; justify-content: space-between; align-items: center; gap: 12px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-  }
-  .card.danger-card { border-color: #fecaca; background: #fffafa; }
-  .name-wrap { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .name { font-size: 15px; font-weight: 600; margin: 0; }
-  .stock-right { text-align: right; flex-shrink: 0; white-space: nowrap; }
-  .stock-num { font-size: 18px; font-weight: 700; margin: 0; color: #166534; }
-  .stock-num.danger { color: #dc2626; }
-  .low-tag {
-    font-size: 11px; color: #b91c1c; margin: 2px 0 0; font-weight: 600;
-    background: #fef2f2; padding: 2px 8px; border-radius: 999px; display: inline-block;
+  .grid-bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.35;
+    background-image:
+      linear-gradient(rgba(47,230,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(47,230,255,0.05) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 75%);
   }
 
-  .err {
-    margin-bottom: 16px; padding: 10px 14px; background: #fef2f2; border: 1px solid #fecaca;
-    border-radius: 10px; font-size: 13px; color: #b91c1c; display: flex; justify-content: space-between; align-items: center;
+  .wrap { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 28px 22px 70px; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: linear-gradient(145deg, #ffb454, #ff8a00);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; box-shadow: 0 0 24px rgba(255,138,0,0.55);
   }
-  .err button { background: none; border: none; color: #b91c1c; font-size: 14px; padding: 0 4px; cursor: pointer; }
-  .footer-note { font-size: 11px; color: #a8a29e; margin-top: 24px; text-align: center; line-height: 1.6; }
-  .loading { font-size: 13px; color: #a8a29e; padding: 60px 0; text-align: center; }
+  .brand-text h1 {
+    font-family: "Kanit", sans-serif; font-weight: 700; font-size: 22px; margin: 0;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, #fff3e0, #ffb454);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .brand-text p { margin: 2px 0 0; font-size: 11px; color: #8b8a99; letter-spacing: 1.5px; }
+
+  .status-container { display: flex; gap: 10px; align-items: center; }
+  .live-pill {
+    display: flex; align-items: center; gap: 8px; font-size: 12px; color: #2fe6ff;
+    padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(47,230,255,0.35);
+    background: rgba(47,230,255,0.06);
+  }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #2fe6ff; box-shadow: 0 0 8px #2fe6ff; animation: pulse 1.4s infinite; }
+
+  .error-pill {
+    display: none; align-items: center; gap: 8px; font-size: 12px; color: #ff3b5c;
+    padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(255,59,92,0.35);
+    background: rgba(255,59,92,0.06);
+    animation: blink 1s infinite;
+  }
+
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  .glass {
+    background: linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    backdrop-filter: blur(14px);
+    position: relative;
+    transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+  }
+  .glass::before {
+    content: ""; position: absolute; inset: 0; border-radius: 18px; padding: 1px;
+    background: linear-gradient(160deg, rgba(255,180,84,0.18), transparent 40%, rgba(47,230,255,0.12));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    pointer-events: none;
+  }
+  .glass:hover { border-color: rgba(255,180,84,0.4); box-shadow: 0 0 32px rgba(255,138,0,0.18); transform: translateY(-2px); }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 22px; }
+  .kpi-card { padding: 20px 22px; }
+  .kpi-label { font-size: 12px; color: #8b8a99; letter-spacing: 1px; margin: 0 0 10px; text-transform: uppercase; }
+  .kpi-value { font-family: "Kanit", sans-serif; font-weight: 700; font-size: 34px; margin: 0; line-height: 1; color: #fff3e0; }
+  .kpi-value .unit { font-size: 16px; color: #8b8a99; font-weight: 400; margin-left: 4px; }
+  .kpi-value.cyan { color: #2fe6ff; text-shadow: 0 0 18px rgba(47,230,255,0.4); }
+  .kpi-value.amber { color: #ffb454; text-shadow: 0 0 18px rgba(255,138,0,0.4); }
+  .kpi-sub { font-size: 12px; color: #5ed98c; margin: 8px 0 0; }
+
+  .row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .panel { padding: 20px 22px 14px; }
+  .panel-title {
+    font-family: "Kanit", sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.4px;
+    margin: 0 0 16px; color: #f5f1ea; display: flex; align-items: center; gap: 8px;
+  }
+  .panel-title .bar { width: 3px; height: 14px; background: linear-gradient(180deg, #ffb454, #ff3b5c); border-radius: 2px; display: inline-block; }
+
+  .stock-chart-wrap { position: relative; height: 230px; margin-bottom: 6px; }
+  .stock-legend { display: flex; gap: 18px; flex-wrap: wrap; padding: 10px 0 4px; font-size: 12px; color: #8b8a99; }
+  .stock-legend span.flag { color: #ff3b5c; font-weight: 600; animation: blink 1s infinite; }
+
+  .line-wrap { position: relative; height: 230px; }
+
+  .feed-panel { padding: 20px 18px 8px; display: flex; flex-direction: column; }
+  .feed-list { height: 230px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; }
+  .feed-list::-webkit-scrollbar { width: 4px; }
+  .feed-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .feed-item {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 9px 12px; font-size: 12.5px; color: #d8d5e0;
+    animation: slideIn .4s ease;
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .feed-item .t { color: #2fe6ff; font-weight: 600; flex-shrink: 0; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .footer-note { margin-top: 18px; text-align: center; font-size: 11px; color: #5b596a; line-height: 1.7; }
+  .footer-note span { color: #5ed98c; }
+
+  @media (max-width: 880px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
+<div class="grid-bg"></div>
 <div class="wrap">
-  <div class="header">
-    <h1><span class="emoji">📦</span> เช็คสต็อกสินค้า</h1>
-    <div class="status online" id="status-box"><span class="dot online" id="status-dot"></span><span id="status-text">กำลังเชื่อมต่อ</span></div>
-  </div>
-  <p class="updated" id="updated-text">กำลังโหลด...</p>
 
-  <div id="err-box"></div>
-
-  <div id="main-content" style="display:none;">
-    <div class="stats">
-      <div class="stat-card">
-        <p class="stat-label">สต็อกรวมทั้งหมด</p>
-        <p class="stat-value" id="stat-stock">0 ชิ้น</p>
-      </div>
-      <div class="stat-card">
-        <p class="stat-label">ใกล้หมด (≤ 30 ชิ้น)</p>
-        <p class="stat-value" id="stat-low">0 รายการ</p>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">📦</div>
+      <div class="brand-text">
+        <h1 class="display">MATKAM LIVE CONTROL</h1>
+        <p>ระบบเช็คสต็อกและยอดขายมะขามกวน</p>
       </div>
     </div>
-
-    <div class="chart-card">
-      <p class="chart-title">เปรียบเทียบสต็อกแต่ละสูตร</p>
-      <div class="chart-wrap"><canvas id="stock-chart"></canvas></div>
+    <div class="status-container">
+      <div class="error-pill" id="error-pill">● CONNECTION ERROR</div>
+      <div class="live-pill" id="live-pill"><span class="live-dot"></span> SYSTEM ONLINE</div>
     </div>
-
-    <p class="section-label">รายการสินค้า</p>
-    <div class="list" id="product-list"></div>
   </div>
 
-  <div class="loading" id="loading-box">กำลังโหลดข้อมูล...</div>
+  <div class="kpi-grid">
+    <div class="glass kpi-card">
+      <p class="kpi-label">ยอดคำสั่งซื้อวันนี้</p>
+      <p class="kpi-value amber" id="kpi-orders">0<span class="unit">ออเดอร์</span></p>
+      <p class="kpi-sub">▲ จากที่กรอกในชีท Orders</p>
+    </div>
+    <div class="glass kpi-card">
+      <p class="kpi-label">รายได้รวมวันนี้</p>
+      <p class="kpi-value cyan" id="kpi-revenue">฿0</p>
+      <p class="kpi-sub">▲ สรุปยอดเงินวันนี้</p>
+    </div>
+  </div>
 
-  <p class="footer-note">หน้านี้สำหรับดูข้อมูลอย่างเดียว · ดึงข้อมูลจาก Google Sheet โดยตรง<br>อัปเดตอัตโนมัติทุก 10 วินาที</p>
+  <div class="glass panel" style="margin-bottom:16px;">
+    <p class="panel-title"><span class="bar"></span>ระดับสต็อกตามสูตร — แจ้งเตือนเมื่อเหลือน้อยกว่า 30 ชิ้น</p>
+    <div class="stock-chart-wrap"><canvas id="stockChart"></canvas></div>
+    <div class="stock-legend" id="stock-legend"></div>
+  </div>
+
+  <div class="row">
+    <div class="glass panel">
+      <p class="panel-title"><span class="bar"></span>ชีพจรยอดขายรายชั่วโมง (วันนี้)</p>
+      <div class="line-wrap"><canvas id="salesLine"></canvas></div>
+    </div>
+    <div class="glass feed-panel">
+      <p class="panel-title"><span class="bar"></span>LIVE ORDER FEED</p>
+      <div class="feed-list" id="feed-list"></div>
+    </div>
+  </div>
+
+  <p class="footer-note">
+    เชื่อมต่อ Google Sheets ของร้านแล้ว <span>● Connected</span><br>
+    ระบบจะรีเฟรชข้อมูลอัตโนมัติทุกๆ 1 นาที
+  </p>
 </div>
 
 <script>
-(function() {
-  // ผมแปลงลิงก์สเปรดชีตของคุณให้เป็นรูปแบบดึงไฟล์ CSV ฟรีตลอดชีพเรียบร้อยครับ
-  var CSV_URL = "https://docs.google.com/spreadsheets/d/1nJIyKXxm3iuA526t9tA9Ka1W6mUagXnynwvNPzbPtdg/export?format=csv";
-  
-  var THRESHOLD = 30; 
-  var BAR_COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#a855f7", "#ec4899", "#06b6d4", "#f97316", "#84cc16"];
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwPC_6TFpM4fEg7FS1T0U5cYSOH9zCUtKKlgYcp2KxiDvNqyiUhMEEzFaBZ0TLntC442g/exec";
+const LOW_STOCK_THRESHOLD = 30;
+const COLORS = { amber: "#ffb454", cyan: "#2fe6ff", danger: "#ff3b5c", grid: "rgba(255,255,255,0.06)" };
 
-  var state = { products: [], updatedAt: null, loaded: false };
-  var chart = null;
+let stockChart = null;
+let salesLineChart = null;
 
-  function fmtNum(n) { return Math.round(n).toLocaleString("th-TH"); }
+async function fetchDashboardData() {
+  try {
+    const response = await fetch(WEB_APP_URL);
+    if (!response.ok) throw new Error("Network response was not ok");
+    const data = await response.json();
 
-  function getColorByName(name) {
-    if (!name) return { bg: "#cbd5e1", border: "#cbd5e1" };
-    if (name.includes("กะทิ")) return { bg: "#f5f5f4", border: "#d6d3d1" };
-    if (name.includes("มะพร้าว")) return { bg: "#22c55e", border: "#16a34a" };
-    if (name.includes("เปรี้ยวหวาน")) return { bg: "#854d0e", border: "#713f12" };
-    return { bg: "#3b82f6", border: "#2563eb" };
+    document.getElementById("error-pill").style.display = "none";
+    document.getElementById("live-pill").style.opacity = "1";
+
+    renderKPIs(data);
+    renderStockChart(data.products || []);
+    renderSalesLine(data.hourlySales || { labels: [], values: [] });
+    renderFeed(data.liveFeed || []);
+
+  } catch (error) {
+    console.error("Fetch error:", error);
+    document.getElementById("error-pill").style.display = "flex";
+    document.getElementById("live-pill").style.opacity = "0.4";
   }
+}
 
-  // ระบบจัดการแกะข้อมูลจากไฟล์ CSV ของ Google Sheets
-  function parseCSV(text) {
-    var lines = text.split("\n");
-    if (lines.length < 2) return [];
-    
-    // แกะหัวข้อคอลัมน์แถวที่ 1
-    var headers = lines[0].split(",").map(function(h) { 
-      return h.trim().replace(/^"|"$/g, '').toLowerCase(); 
-    });
-    
-    var nameIdx = headers.indexOf("name");
-    var stockIdx = headers.indexOf("stock");
-    
-    // ถ้าหาหัวคอลัมน์ไม่เจอ ลองแกะแบบล้างเครื่องหมายคำพูดเผื่อไว้
-    if (nameIdx === -1 || stockIdx === -1) {
-      for(var k=0; k<headers.length; k++) {
-        if(headers[k].includes("name")) nameIdx = k;
-        if(headers[k].includes("stock")) stockIdx = k;
-      }
-    }
-    
-    if (nameIdx === -1 || stockIdx === -1) return [];
+function animateCounter(el, target, opts) {
+  opts = opts || {};
+  const duration = opts.duration || 1000;
+  const prefix = opts.prefix || "";
+  const suffix = opts.suffix || "";
+  const start = performance.now();
+  const currentVal = parseInt(el.textContent.replace(/[^0-9]/g, '')) || 0;
 
-    var results = [];
-    for (var i = 1; i < lines.length; i++) {
-      var line = lines[i].trim();
-      if (!line) continue;
-      
-      // แยกคอลัมน์ (รองรับกรณีชื่อสินค้ามีเครื่องหมายคำพูดครอบ)
-      var cols = [];
-      var insideQuote = false;
-      var currentWord = "";
-      
-      for (var j = 0; j < line.length; j++) {
-        var char = line[j];
-        if (char === '"') {
-          insideQuote = !insideQuote;
-        } else if (char === ',' && !insideQuote) {
-          cols.push(currentWord);
-          currentWord = "";
-        } else {
-          currentWord += char;
-        }
-      }
-      cols.push(currentWord);
-      
-      if (cols.length <= Math.max(nameIdx, stockIdx)) continue;
-      
-      var pName = cols[nameIdx].trim().replace(/^"|"$/g, '');
-      var pStock = cols[stockIdx].trim().replace(/^"|"$/g, '');
-      
-      if(pName) {
-        results.push({ name: pName, stock: pStock });
-      }
-    }
-    return results;
+  function tick(now) {
+    const p = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - p, 3);
+    const val = Math.round(currentVal + (target - currentVal) * eased);
+    el.innerHTML = prefix + val.toLocaleString("th-TH") + suffix;
+    if (p < 1) requestAnimationFrame(tick);
   }
+  requestAnimationFrame(tick);
+}
 
-  function showError(msg) {
-    var box = document.getElementById("err-box");
-    box.innerHTML = "";
-    var div = document.createElement("div");
-    div.className = "err";
-    var span = document.createElement("span");
-    span.textContent = msg;
-    var btn = document.createElement("button");
-    btn.textContent = "x";
-    btn.onclick = function() { box.innerHTML = ""; };
-    div.appendChild(span);
-    div.appendChild(btn);
-    box.appendChild(div);
-  }
+function renderKPIs(data) {
+  animateCounter(document.getElementById("kpi-orders"), data.ordersToday || 0, { suffix: '<span class="unit">ออเดอร์</span>' });
+  animateCounter(document.getElementById("kpi-revenue"), data.revenueToday || 0, { prefix: "฿" });
+}
 
-  function clearError() {
-    document.getElementById("err-box").innerHTML = "";
-  }
+function renderStockChart(products) {
+  const ctx = document.getElementById("stockChart").getContext("2d");
 
-  function setStatus(online) {
-    var dot = document.getElementById("status-dot");
-    var text = document.getElementById("status-text");
-    var box = document.getElementById("status-box");
-    if (online) {
-      box.className = "status online";
-      dot.className = "dot online";
-      text.textContent = "เชื่อมต่ออยู่";
-    } else {
-      box.className = "status offline";
-      dot.className = "dot offline";
-      text.textContent = "เชื่อมต่อไม่ได้";
-    }
-  }
+  const labels = products.map(p => p.name);
+  const values = products.map(p => p.stock);
+  const colors = values.map(val => val < LOW_STOCK_THRESHOLD ? COLORS.danger : COLORS.amber);
 
-  function fetchProducts() {
-    // ใส่ระบบห้อยเวลาท้ายลิงก์กันการดึงข้อมูลเก่าซ้ำ (Anti-cache)
-    return fetch(CSV_URL + "&t=" + new Date().getTime())
-      .then(function(res) {
-        if (!res.ok) throw new Error("network");
-        return res.text();
-      })
-      .then(function(csvText) {
-        var parsedData = parseCSV(csvText);
-        if(parsedData.length === 0 && state.products.length > 0) {
-          // ถ้าดึงข้อมูลรอบใหม่แล้วเอ๋อ ให้ใช้ข้อมูลเดิมก่อน
-          return;
-        }
-        state.products = parsedData;
-        state.updatedAt = new Date();
-        state.loaded = true;
-        setStatus(true);
-        clearError();
-        render();
-      })
-      .catch(function(e) {
-        console.error(e);
-        setStatus(false);
-        if (!state.loaded) {
-          showError("เชื่อมต่อ Google Sheet ไม่ได้ กรุณาตรวจสอบการตั้งค่าแชร์ลิงก์");
-        }
-      });
-  }
-
-  function renderChart() {
-    var labels = state.products.map(function(p) { return p.name; });
-    var values = state.products.map(function(p) { return Number(p.stock) || 0; });
-    var bgColors = state.products.map(function(p) { return getColorByName(p.name).bg; });
-    var borderColors = state.products.map(function(p) { return getColorByName(p.name).border; });
-
-    var ctx = document.getElementById("stock-chart").getContext("2d");
-
-    if (chart) {
-      chart.data.labels = labels;
-      chart.data.datasets[0].data = values;
-      chart.data.datasets[0].backgroundColor = bgColors;
-      chart.data.datasets[0].borderColor = borderColors;
-      chart.update();
-      return;
-    }
-
-    chart = new Chart(ctx, {
+  if (stockChart) {
+    stockChart.data.labels = labels;
+    stockChart.data.datasets[0].data = values;
+    stockChart.data.datasets[0].backgroundColor = colors;
+    stockChart.update();
+  } else {
+    stockChart = new Chart(ctx, {
       type: "bar",
       data: {
         labels: labels,
         datasets: [{
-          label: "คงเหลือ (ชิ้น)",
           data: values,
-          backgroundColor: bgColors,
-          borderColor: borderColors,
-          borderWidth: 1.5,
-          borderRadius: 6,
-          maxBarThickness: 52
+          backgroundColor: colors,
+          borderRadius: 10,
+          maxBarThickness: 70
         }]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function(ctx) { return "คงเหลือ " + fmtNum(ctx.parsed.y) + " ชิ้น"; }
-            }
-          }
-        },
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false },
+          tooltip: { callbacks: { label: (c) => "คงเหลือ " + c.parsed.y + " ชิ้น" } } },
         scales: {
-          y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "#f0efed" } },
-          x: { grid: { display: false } }
+          y: { beginAtZero: true, grid: { color: COLORS.grid }, ticks: { color: "#8b8a99" } },
+          x: { grid: { display: false }, ticks: { color: "#d8d5e0", font: { family: "Noto Sans Thai" } } }
         }
       }
     });
   }
 
-  function render() {
-    if (!state.loaded) return;
+  const legend = document.getElementById("stock-legend");
+  legend.innerHTML = "";
+  products.forEach(p => {
+    const isLow = p.stock < LOW_STOCK_THRESHOLD;
+    const span = document.createElement("span");
+    span.innerHTML = (isLow ? `<span class="flag">● ${p.name} ใกล้หมด (${p.stock} ชิ้น)</span>` : `● ${p.name}: ${p.stock} ชิ้น`);
+    if (!isLow) span.style.color = "#8b8a99";
+    legend.appendChild(span);
+  });
+}
 
-    document.getElementById("loading-box").style.display = "none";
-    document.getElementById("main-content").style.display = "block";
+function renderSalesLine(hourlySales) {
+  const ctx = document.getElementById("salesLine").getContext("2d");
+  const gradient = ctx.createLinearGradient(0, 0, 0, 230);
+  gradient.addColorStop(0, "rgba(47,230,255,0.35)");
+  gradient.addColorStop(1, "rgba(47,230,255,0)");
 
-    var totalStock = 0, lowCount = 0;
-    state.products.forEach(function(p) {
-      totalStock += Number(p.stock) || 0;
-      if ((Number(p.stock) || 0) <= THRESHOLD) lowCount++;
-    });
+  const labels = hourlySales.labels.length > 0 ? hourlySales.labels : ["00:00"];
+  const values = hourlySales.values.length > 0 ? hourlySales.values : [0];
 
-    document.getElementById("stat-stock").textContent = fmtNum(totalStock) + " ชิ้น";
-    var lowEl = document.getElementById("stat-low");
-    lowEl.textContent = fmtNum(lowCount) + " รายการ";
-    lowEl.className = "stat-value" + (lowCount > 0 ? " danger" : "");
-
-    var updatedText = state.updatedAt
-      ? "อัปเดตล่าสุด " + state.updatedAt.toLocaleString("th-TH", { dateStyle: "short", timeStyle: "medium" })
-      : "";
-    document.getElementById("updated-text").textContent = updatedText;
-
-    var list = document.getElementById("product-list");
-    list.innerHTML = "";
-
-    state.products.forEach(function(p, i) {
-      var stockNum = Number(p.stock) || 0;
-      var isLow = stockNum <= THRESHOLD;
-      var itemColors = getColorByName(p.name);
-
-      var card = document.createElement("div");
-      card.className = "card" + (isLow ? " danger-card" : "");
-
-      var left = document.createElement("div");
-      left.className = "name-wrap";
-      var swatch = document.createElement("span");
-      swatch.className = "swatch";
-      swatch.style.background = itemColors.bg;
-      swatch.style.border = "1px solid " + itemColors.border;
-      
-      var nameP = document.createElement("p");
-      nameP.className = "name";
-      nameP.textContent = p.name;
-      left.appendChild(swatch);
-      left.appendChild(nameP);
-
-      var right = document.createElement("div");
-      right.className = "stock-right";
-      var stockP = document.createElement("p");
-      stockP.className = "stock-num" + (isLow ? " danger" : "");
-      stockP.textContent = "เหลือ " + fmtNum(stockNum);
-      right.appendChild(stockP);
-      if (isLow) {
-        var lowP = document.createElement("p");
-        lowP.className = "low-tag";
-        lowP.textContent = "ใกล้หมด";
-        right.appendChild(lowP);
+  if (salesLineChart) {
+    salesLineChart.data.labels = labels;
+    salesLineChart.data.datasets[0].data = values;
+    salesLineChart.update();
+  } else {
+    salesLineChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: COLORS.cyan,
+          backgroundColor: gradient,
+          borderWidth: 2.5,
+          tension: 0.45,
+          fill: true,
+          pointRadius: hourlySales.labels.length > 1 ? 0 : 4,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: COLORS.cyan
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false },
+          tooltip: { callbacks: { label: (c) => c.parsed.y + " ชิ้น" } } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: COLORS.grid }, ticks: { color: "#8b8a99" } },
+          x: { grid: { display: false }, ticks: { color: "#8b8a99" } }
+        }
       }
-
-      card.appendChild(left);
-      card.appendChild(right);
-      list.appendChild(card);
     });
+  }
+}
 
-    try {
-      renderChart();
-    } catch (e) {
-      console.error("Chart render failed:", e);
-    }
+function renderFeed(liveFeed) {
+  const list = document.getElementById("feed-list");
+  list.innerHTML = "";
+
+  if (!liveFeed || liveFeed.length === 0) {
+    list.innerHTML = `<div class="feed-item" style="color: #8b8a99; justify-content: center;">ยังไม่มีกิจกรรมออเดอร์ในวันนี้</div>`;
+    return;
   }
 
-  fetchProducts();
-  setInterval(fetchProducts, 10000); // ดึงอัปเดตทุกๆ 10 วินาทีแบบฟรีตลอดชีพ
-})();
+  liveFeed.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "feed-item";
+    div.innerHTML = `<span class="t">[${item.time}]</span><span>${item.text}</span>`;
+    list.appendChild(div);
+  });
+}
+
+fetchDashboardData();
+setInterval(fetchDashboardData, 60000);
 </script>
 </body>
 </html>
