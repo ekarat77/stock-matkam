@@ -299,31 +299,50 @@ function renderSalesLine(hourlySales) {
   const ctx = document.getElementById("salesLine").getContext("2d");
 
   const labels = hourlySales.labels.length > 0 ? hourlySales.labels : ["00:00"];
-  const values = hourlySales.values.length > 0 ? hourlySales.values : [0];
+  const raw    = hourlySales.values.length > 0 ? hourlySales.values : [0];
+
+  // คำนวณยอดสะสม
+  const cumulative = raw.reduce((acc, val, i) => {
+    acc.push((acc[i - 1] || 0) + val);
+    return acc;
+  }, []);
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 230);
+  gradient.addColorStop(0, "rgba(47,230,255,0.25)");
+  gradient.addColorStop(1, "rgba(47,230,255,0)");
 
   if (salesLineChart) {
     salesLineChart.data.labels = labels;
-    salesLineChart.data.datasets[0].data = values;
+    salesLineChart.data.datasets[0].data = cumulative;
     salesLineChart.update();
   } else {
     salesLineChart = new Chart(ctx, {
-      type: "bar",
+      type: "line",
       data: {
         labels: labels,
         datasets: [{
-          data: values,
-          backgroundColor: "rgba(47,230,255,0.7)",
+          data: cumulative,
           borderColor: COLORS.cyan,
-          borderWidth: 1.5,
-          borderRadius: 8,
-          maxBarThickness: 50
+          backgroundColor: gradient,
+          borderWidth: 2,
+          tension: 0.1,
+          fill: true,
+          pointRadius: 4,
+          pointBackgroundColor: COLORS.cyan,
+          pointBorderColor: "#07070b",
+          pointBorderWidth: 2,
+          pointHoverRadius: 6
         }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
-          tooltip: { callbacks: { label: (c) => c.parsed.y + " ชิ้น" } }
+          tooltip: {
+            callbacks: {
+              label: (c) => "ยอดสะสม " + c.parsed.y + " ชิ้น"
+            }
+          }
         },
         scales: {
           y: {
@@ -331,7 +350,7 @@ function renderSalesLine(hourlySales) {
             grid: { color: COLORS.grid },
             ticks: { color: "#8b8a99", stepSize: 1 }
           },
-          x: { grid: { display: false }, ticks: { color: "#8b8a99" } }
+          x: { grid: { color: COLORS.grid }, ticks: { color: "#8b8a99" } }
         }
       }
     });
