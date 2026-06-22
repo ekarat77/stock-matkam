@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MATKAM LIVE CONTROL</title>
+<title>มะขามกวนแม่ยาย</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500;700;900&family=Noto+Sans+Thai:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -18,7 +18,6 @@
     overflow-x: hidden;
   }
   .display { font-family: "Kanit", "Noto Sans Thai", sans-serif; }
-
   .grid-bg {
     position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.35;
     background-image:
@@ -27,9 +26,7 @@
     background-size: 42px 42px;
     mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 75%);
   }
-
   .wrap { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 28px 22px 70px; }
-
   .topbar { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 12px; }
   .brand-mark {
@@ -45,7 +42,6 @@
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .brand-text p { margin: 2px 0 0; font-size: 11px; color: #8b8a99; letter-spacing: 1.5px; }
-
   .status-container { display: flex; gap: 10px; align-items: center; }
   .live-pill {
     display: flex; align-items: center; gap: 8px; font-size: 12px; color: #2fe6ff;
@@ -53,34 +49,26 @@
     background: rgba(47,230,255,0.06);
   }
   .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #2fe6ff; box-shadow: 0 0 8px #2fe6ff; animation: pulse 1.4s infinite; }
-
   .error-pill {
     display: none; align-items: center; gap: 8px; font-size: 12px; color: #ff3b5c;
     padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(255,59,92,0.35);
-    background: rgba(255,59,92,0.06);
-    animation: blink 1s infinite;
+    background: rgba(255,59,92,0.06); animation: blink 1s infinite;
   }
-
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
   @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-
   .glass {
     background: linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
     border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 18px;
-    backdrop-filter: blur(14px);
-    position: relative;
+    border-radius: 18px; backdrop-filter: blur(14px); position: relative;
     transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
   }
   .glass::before {
     content: ""; position: absolute; inset: 0; border-radius: 18px; padding: 1px;
     background: linear-gradient(160deg, rgba(255,180,84,0.18), transparent 40%, rgba(47,230,255,0.12));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor; mask-composite: exclude;
-    pointer-events: none;
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
   }
   .glass:hover { border-color: rgba(255,180,84,0.4); box-shadow: 0 0 32px rgba(255,138,0,0.18); transform: translateY(-2px); }
-
   .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 22px; }
   .kpi-card { padding: 20px 22px; }
   .kpi-label { font-size: 12px; color: #8b8a99; letter-spacing: 1px; margin: 0 0 10px; text-transform: uppercase; }
@@ -89,40 +77,42 @@
   .kpi-value.cyan { color: #2fe6ff; text-shadow: 0 0 18px rgba(47,230,255,0.4); }
   .kpi-value.amber { color: #ffb454; text-shadow: 0 0 18px rgba(255,138,0,0.4); }
   .kpi-sub { font-size: 12px; color: #5ed98c; margin: 8px 0 0; }
-
   .row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .row-full { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
   .panel { padding: 20px 22px 14px; }
   .panel-title {
     font-family: "Kanit", sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.4px;
     margin: 0 0 16px; color: #f5f1ea; display: flex; align-items: center; gap: 8px;
   }
   .panel-title .bar { width: 3px; height: 14px; background: linear-gradient(180deg, #ffb454, #ff3b5c); border-radius: 2px; display: inline-block; }
-
   .stock-chart-wrap { position: relative; height: 230px; margin-bottom: 6px; }
   .stock-legend { display: flex; gap: 18px; flex-wrap: wrap; padding: 10px 0 4px; font-size: 12px; color: #8b8a99; }
   .stock-legend span.flag { color: #ff3b5c; font-weight: 600; animation: blink 1s infinite; }
-
-  .line-wrap { position: relative; height: 230px; }
-
+  .line-wrap { position: relative; height: 220px; }
   .feed-panel { padding: 20px 18px 8px; display: flex; flex-direction: column; }
-  .feed-list { height: 230px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; }
+  .feed-list { height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; }
   .feed-list::-webkit-scrollbar { width: 4px; }
   .feed-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
   .feed-item {
     background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
     border-radius: 10px; padding: 9px 12px; font-size: 12.5px; color: #d8d5e0;
-    animation: slideIn .4s ease;
-    display: flex; gap: 8px; align-items: flex-start;
+    animation: slideIn .4s ease; display: flex; gap: 8px; align-items: flex-start;
   }
   .feed-item .t { color: #2fe6ff; font-weight: 600; flex-shrink: 0; }
   @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
+  .tab-bar { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tab-btn {
+    font-family: "Kanit", sans-serif; font-size: 12px; padding: 5px 14px; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #8b8a99;
+    cursor: pointer; transition: all .2s ease;
+  }
+  .tab-btn.active { background: rgba(47,230,255,0.12); border-color: rgba(47,230,255,0.4); color: #2fe6ff; }
   .footer-note { margin-top: 18px; text-align: center; font-size: 11px; color: #5b596a; line-height: 1.7; }
   .footer-note span { color: #5ed98c; }
-
   @media (max-width: 880px) {
     .kpi-grid { grid-template-columns: 1fr; }
     .row { grid-template-columns: 1fr; }
+    .row-full { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -148,7 +138,6 @@
     <div class="glass kpi-card">
       <p class="kpi-label">ยอดคำสั่งซื้อวันนี้</p>
       <p class="kpi-value amber" id="kpi-orders">0<span class="unit">ออเดอร์</span></p>
-
     </div>
     <div class="glass kpi-card">
       <p class="kpi-label">รายได้รวมวันนี้</p>
@@ -165,13 +154,23 @@
 
   <div class="row">
     <div class="glass panel">
-      <p class="panel-title"><span class="bar"></span>ชีพจรยอดขายรายชั่วโมง (วันนี้)</p>
+      <p class="panel-title"><span class="bar"></span>ยอดขายรายชั่วโมง (วันนี้)</p>
       <div class="line-wrap"><canvas id="salesLine"></canvas></div>
     </div>
     <div class="glass feed-panel">
       <p class="panel-title"><span class="bar"></span>ออเดอร์ล่าสุด</p>
       <div class="feed-list" id="feed-list"></div>
     </div>
+  </div>
+
+  <!-- กราฟสถิติรายสัปดาห์/เดือน -->
+  <div class="glass panel" style="margin-bottom:16px;">
+    <p class="panel-title"><span class="bar"></span>สถิติยอดขาย</p>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('week')">รายสัปดาห์</button>
+      <button class="tab-btn" onclick="switchTab('month')">รายเดือน</button>
+    </div>
+    <div class="line-wrap"><canvas id="summaryChart"></canvas></div>
   </div>
 
   <p class="footer-note">
@@ -184,32 +183,31 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzURMTP4Aa0CYdLNRAtU5kG3vOUNKziLGbq-q_cO6SHtoLMkN1kD-S3hW7iJGT0iGgQhQ/exec";
 const LOW_STOCK_THRESHOLD = 30;
 const COLORS = {
-  amber: "#ffb454",
-  cyan: "#2fe6ff",
-  danger: "#ff3b5c",
-  grid: "rgba(255,255,255,0.06)",
-  formulaCoconut: "#ffffff",
-  formulaMuprow: "#5ed98c",
-  formulaSweetSour: "#d2691e"
+  amber: "#ffb454", cyan: "#2fe6ff", danger: "#ff3b5c",
+  green: "#5ed98c", grid: "rgba(255,255,255,0.06)",
+  formulaCoconut: "#ffffff", formulaMuprow: "#5ed98c", formulaSweetSour: "#d2691e"
 };
 
 let stockChart = null;
 let salesLineChart = null;
+let summaryChart = null;
+let summaryData = { week: { labels: [], values: [] }, month: { labels: [], values: [] } };
+let currentTab = "week";
 
 async function fetchDashboardData() {
   try {
     const response = await fetch(WEB_APP_URL);
     if (!response.ok) throw new Error("Network response was not ok");
     const data = await response.json();
-
     document.getElementById("error-pill").style.display = "none";
     document.getElementById("live-pill").style.opacity = "1";
-
     renderKPIs(data);
     renderStockChart(data.products || []);
     renderSalesLine(data.hourlySales || { labels: [], values: [] });
     renderFeed(data.liveFeed || []);
-
+    summaryData.week  = data.weeklySales  || { labels: [], values: [] };
+    summaryData.month = data.monthlySales || { labels: [], values: [] };
+    renderSummaryChart(currentTab);
   } catch (error) {
     console.error("Fetch error:", error);
     document.getElementById("error-pill").style.display = "flex";
@@ -224,7 +222,6 @@ function animateCounter(el, target, opts) {
   const suffix = opts.suffix || "";
   const start = performance.now();
   const currentVal = parseInt(el.textContent.replace(/[^0-9]/g, '')) || 0;
-
   function tick(now) {
     const p = Math.min(1, (now - start) / duration);
     const eased = 1 - Math.pow(1 - p, 3);
@@ -242,10 +239,8 @@ function renderKPIs(data) {
 
 function renderStockChart(products) {
   const ctx = document.getElementById("stockChart").getContext("2d");
-
   const labels = products.map(p => p.name);
   const values = products.map(p => p.stock);
-
   const colors = products.map(p => {
     const name = p.name || "";
     if (p.stock < LOW_STOCK_THRESHOLD) return COLORS.danger;
@@ -254,7 +249,6 @@ function renderStockChart(products) {
     if (name.includes("สูตรเปรี้ยวหวาน")) return COLORS.formulaSweetSour;
     return COLORS.amber;
   });
-
   if (stockChart) {
     stockChart.data.labels = labels;
     stockChart.data.datasets[0].data = values;
@@ -263,19 +257,10 @@ function renderStockChart(products) {
   } else {
     stockChart = new Chart(ctx, {
       type: "bar",
-      data: {
-        labels: labels,
-        datasets: [{
-          data: values,
-          backgroundColor: colors,
-          borderRadius: 10,
-          maxBarThickness: 70
-        }]
-      },
+      data: { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 10, maxBarThickness: 70 }] },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false },
-          tooltip: { callbacks: { label: (c) => "คงเหลือ " + c.parsed.y + " ชิ้น" } } },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => "คงเหลือ " + c.parsed.y + " ชิ้น" } } },
         scales: {
           y: { beginAtZero: true, grid: { color: COLORS.grid }, ticks: { color: "#8b8a99" } },
           x: { grid: { display: false }, ticks: { color: "#d8d5e0", font: { family: "Noto Sans Thai" } } }
@@ -283,13 +268,12 @@ function renderStockChart(products) {
       }
     });
   }
-
   const legend = document.getElementById("stock-legend");
   legend.innerHTML = "";
   products.forEach(p => {
     const isLow = p.stock < LOW_STOCK_THRESHOLD;
     const span = document.createElement("span");
-    span.innerHTML = (isLow ? `<span class="flag">● ${p.name} ใกล้หมด (${p.stock} ชิ้น)</span>` : `● ${p.name}: ${p.stock} ชิ้น`);
+    span.innerHTML = isLow ? `<span class="flag">● ${p.name} ใกล้หมด (${p.stock} ชิ้น)</span>` : `● ${p.name}: ${p.stock} ชิ้น`;
     if (!isLow) span.style.color = "#8b8a99";
     legend.appendChild(span);
   });
@@ -297,20 +281,12 @@ function renderStockChart(products) {
 
 function renderSalesLine(hourlySales) {
   const ctx = document.getElementById("salesLine").getContext("2d");
-
   const labels = hourlySales.labels.length > 0 ? hourlySales.labels : ["00:00"];
   const raw    = hourlySales.values.length > 0 ? hourlySales.values : [0];
-
-  // คำนวณยอดสะสม
-  const cumulative = raw.reduce((acc, val, i) => {
-    acc.push((acc[i - 1] || 0) + val);
-    return acc;
-  }, []);
-
-  const gradient = ctx.createLinearGradient(0, 0, 0, 230);
-  gradient.addColorStop(0, "rgba(47,230,255,0.25)");
+  const cumulative = raw.reduce((acc, val, i) => { acc.push((acc[i-1]||0)+val); return acc; }, []);
+  const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+  gradient.addColorStop(0, "rgba(47,230,255,0.3)");
   gradient.addColorStop(1, "rgba(47,230,255,0)");
-
   if (salesLineChart) {
     salesLineChart.data.labels = labels;
     salesLineChart.data.datasets[0].data = cumulative;
@@ -318,38 +294,17 @@ function renderSalesLine(hourlySales) {
   } else {
     salesLineChart = new Chart(ctx, {
       type: "line",
-      data: {
-        labels: labels,
-        datasets: [{
-          data: cumulative,
-          borderColor: COLORS.cyan,
-          backgroundColor: gradient,
-          borderWidth: 2,
-          tension: 0.1,
-          fill: true,
-          pointRadius: 4,
-          pointBackgroundColor: COLORS.cyan,
-          pointBorderColor: "#07070b",
-          pointBorderWidth: 2,
-          pointHoverRadius: 6
-        }]
-      },
+      data: { labels, datasets: [{
+        data: cumulative, borderColor: COLORS.cyan, backgroundColor: gradient,
+        borderWidth: 2.5, tension: 0.3, fill: true,
+        pointRadius: 5, pointBackgroundColor: "#07070b",
+        pointBorderColor: COLORS.cyan, pointBorderWidth: 2, pointHoverRadius: 7
+      }]},
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (c) => "ยอดสะสม " + c.parsed.y + " ชิ้น"
-            }
-          }
-        },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => "ยอดสะสม " + c.parsed.y + " ชิ้น" } } },
         scales: {
-          y: {
-            beginAtZero: true,
-            grid: { color: COLORS.grid },
-            ticks: { color: "#8b8a99", stepSize: 1 }
-          },
+          y: { beginAtZero: true, grid: { color: COLORS.grid }, ticks: { color: "#8b8a99", stepSize: 1 } },
           x: { grid: { color: COLORS.grid }, ticks: { color: "#8b8a99" } }
         }
       }
@@ -357,15 +312,54 @@ function renderSalesLine(hourlySales) {
   }
 }
 
+function renderSummaryChart(tab) {
+  const ctx = document.getElementById("summaryChart").getContext("2d");
+  const d = summaryData[tab];
+  const labels = d.labels.length > 0 ? d.labels : [tab === "week" ? "จันทร์" : "ม.ค."];
+  const values = d.values.length > 0 ? d.values : [0];
+  const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+  gradient.addColorStop(0, "rgba(255,180,84,0.3)");
+  gradient.addColorStop(1, "rgba(255,180,84,0)");
+  if (summaryChart) {
+    summaryChart.data.labels = labels;
+    summaryChart.data.datasets[0].data = values;
+    summaryChart.update();
+  } else {
+    summaryChart = new Chart(ctx, {
+      type: "line",
+      data: { labels, datasets: [{
+        data: values, borderColor: COLORS.amber, backgroundColor: gradient,
+        borderWidth: 2.5, tension: 0.3, fill: true,
+        pointRadius: 5, pointBackgroundColor: "#07070b",
+        pointBorderColor: COLORS.amber, pointBorderWidth: 2, pointHoverRadius: 7
+      }]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => "฿" + c.parsed.y.toLocaleString("th-TH") } } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: COLORS.grid }, ticks: { color: "#8b8a99" } },
+          x: { grid: { color: COLORS.grid }, ticks: { color: "#8b8a99" } }
+        }
+      }
+    });
+  }
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+  if (summaryChart) { summaryChart.destroy(); summaryChart = null; }
+  renderSummaryChart(tab);
+}
+
 function renderFeed(liveFeed) {
   const list = document.getElementById("feed-list");
   list.innerHTML = "";
-
   if (!liveFeed || liveFeed.length === 0) {
-    list.innerHTML = `<div class="feed-item" style="color: #8b8a99; justify-content: center;">ยังไม่มีกิจกรรมออเดอร์ในวันนี้</div>`;
+    list.innerHTML = `<div class="feed-item" style="color:#8b8a99;justify-content:center;">ยังไม่มีกิจกรรมออเดอร์ในวันนี้</div>`;
     return;
   }
-
   liveFeed.forEach(item => {
     const div = document.createElement("div");
     div.className = "feed-item";
