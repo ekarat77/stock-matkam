@@ -257,13 +257,38 @@ function renderStockChart(products) {
   } else {
     stockChart = new Chart(ctx, {
       type: "bar",
-      data: { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 10, maxBarThickness: 70 }] },
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors,
+          borderRadius: { topLeft: 12, topRight: 12, bottomLeft: 0, bottomRight: 0 },
+          maxBarThickness: 32,
+          borderSkipped: false
+        }]
+      },
       options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => "คงเหลือ " + c.parsed.y + " ชิ้น" } } },
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(26, 19, 34, 0.9)",
+            titleFont: { family: "Kanit", size: 14 },
+            bodyFont: { family: "Noto Sans Thai", size: 13 },
+            callbacks: { label: (c) => " คงเหลือ " + c.parsed.y + " ชิ้น" }
+          }
+        },
         scales: {
-          y: { beginAtZero: true, grid: { color: COLORS.grid }, ticks: { color: "#8b8a99" } },
-          x: { grid: { display: false }, ticks: { color: "#d8d5e0", font: { family: "Noto Sans Thai" } } }
+          y: {
+            beginAtZero: true,
+            grid: { color: "rgba(255, 255, 255, 0.04)" },
+            ticks: { color: "#8b8a99", font: { family: "Kanit" } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: "#d8d5e0", font: { family: "Noto Sans Thai", size: 13 } }
+          }
         }
       }
     });
@@ -273,7 +298,7 @@ function renderStockChart(products) {
   products.forEach(p => {
     const isLow = p.stock < LOW_STOCK_THRESHOLD;
     const span = document.createElement("span");
-    span.innerHTML = isLow ? `<span class="flag">● ${p.name} ใกล้หมด (${p.stock} ชิ้น)</span>` : `● ${p.name}: ${p.stock} ชิ้น`;
+    span.innerHTML = (isLow ? `<span class="flag">● ${p.name} ใกล้หมด (${p.stock} ชิ้น)</span>` : `● ${p.name}: ${p.stock} ชิ้น`);
     if (!isLow) span.style.color = "#8b8a99";
     legend.appendChild(span);
   });
