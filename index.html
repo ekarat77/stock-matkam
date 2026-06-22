@@ -281,29 +281,60 @@ function renderStockChart(products) {
 
 function renderSalesLine(hourlySales) {
   const ctx = document.getElementById("salesLine").getContext("2d");
-  const labels = hourlySales.labels.length > 0 ? hourlySales.labels : ["00:00"];
-  const values = hourlySales.values.length > 0 ? hourlySales.values : [0];
+
+  // ไล่เฉดสีจาง ๆ ใต้กราฟให้ดูมีมิติ
+  const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+  gradient.addColorStop(0, "rgba(47, 230, 255, 0.2)");
+  gradient.addColorStop(1, "rgba(47, 230, 255, 0)");
+
+  const labels = hourlySales.labels.length > 0 ? hourlySales.labels : ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00"];
+  const values = hourlySales.values.length > 0 ? hourlySales.values : [0, 0, 0, 0, 0, 0];
+
   if (salesLineChart) {
     salesLineChart.data.labels = labels;
     salesLineChart.data.datasets[0].data = values;
     salesLineChart.update();
   } else {
     salesLineChart = new Chart(ctx, {
-      type: "bar",
-      data: { labels, datasets: [{
-        data: values,
-        backgroundColor: "rgba(47,230,255,0.7)",
-        borderColor: COLORS.cyan,
-        borderWidth: 1.5,
-        borderRadius: 8,
-        maxBarThickness: 50
-      }]},
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: "#2fe6ff",
+          borderWidth: 3,
+          pointBackgroundColor: "#1a1322",
+          pointBorderColor: "#2fe6ff",
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          backgroundColor: gradient,
+          fill: true,
+          tension: 0.4
+        }]
+      },
       options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => c.parsed.y + " ชิ้น" } } },
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "rgba(26, 19, 34, 0.9)",
+            titleFont: { family: "Kanit" },
+            bodyFont: { family: "Noto Sans Thai" },
+            callbacks: { label: (c) => " ยอดขาย " + c.parsed.y + " ชิ้น" }
+          }
+        },
         scales: {
-          y: { beginAtZero: true, grid: { color: COLORS.grid }, ticks: { color: "#8b8a99", stepSize: 1 } },
-          x: { grid: { display: false }, ticks: { color: "#8b8a99" } }
+          y: {
+            beginAtZero: true,
+            grid: { color: "rgba(255, 255, 255, 0.04)" },
+            ticks: { color: "#8b8a99", font: { family: "Kanit" }, stepSize: 1 }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: "#8b8a99", font: { family: "Kanit" } }
+          }
         }
       }
     });
