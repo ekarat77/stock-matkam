@@ -297,9 +297,6 @@ function renderStockChart(products) {
 
 function renderSalesLine(hourlySales) {
   const ctx = document.getElementById("salesLine").getContext("2d");
-  const gradient = ctx.createLinearGradient(0, 0, 0, 230);
-  gradient.addColorStop(0, "rgba(47,230,255,0.35)");
-  gradient.addColorStop(1, "rgba(47,230,255,0)");
 
   const labels = hourlySales.labels.length > 0 ? hourlySales.labels : ["00:00"];
   const values = hourlySales.values.length > 0 ? hourlySales.values : [0];
@@ -310,27 +307,30 @@ function renderSalesLine(hourlySales) {
     salesLineChart.update();
   } else {
     salesLineChart = new Chart(ctx, {
-      type: "line",
+      type: "bar",
       data: {
         labels: labels,
         datasets: [{
           data: values,
+          backgroundColor: "rgba(47,230,255,0.7)",
           borderColor: COLORS.cyan,
-          backgroundColor: gradient,
-          borderWidth: 2.5,
-          tension: 0.45,
-          fill: true,
-          pointRadius: hourlySales.labels.length > 1 ? 0 : 4,
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: COLORS.cyan
+          borderWidth: 1.5,
+          borderRadius: 8,
+          maxBarThickness: 50
         }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false },
-          tooltip: { callbacks: { label: (c) => c.parsed.y + " ชิ้น" } } },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (c) => c.parsed.y + " ชิ้น" } }
+        },
         scales: {
-          y: { beginAtZero: true, grid: { color: COLORS.grid }, ticks: { color: "#8b8a99" } },
+          y: {
+            beginAtZero: true,
+            grid: { color: COLORS.grid },
+            ticks: { color: "#8b8a99", stepSize: 1 }
+          },
           x: { grid: { display: false }, ticks: { color: "#8b8a99" } }
         }
       }
