@@ -78,7 +78,6 @@
   .kpi-value.amber { color: #ffb454; text-shadow: 0 0 18px rgba(255,138,0,0.4); }
   .kpi-sub { font-size: 12px; color: #5ed98c; margin: 8px 0 0; }
   .row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .row-full { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
   .panel { padding: 20px 22px 14px; }
   .panel-title {
     font-family: "Kanit", sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.4px;
@@ -89,7 +88,7 @@
   .stock-legend { display: flex; gap: 18px; flex-wrap: wrap; padding: 10px 0 4px; font-size: 12px; color: #8b8a99; }
   .stock-legend span.flag { color: #ff3b5c; font-weight: 600; animation: blink 1s infinite; }
   .line-wrap { position: relative; height: 220px; }
-  .feed-panel { padding: 20px 18px 8px; display: flex; flex-direction: column; }
+  .feed-panel { padding: 20px 18px 14px; display: flex; flex-direction: column; }
   .feed-list { height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; }
   .feed-list::-webkit-scrollbar { width: 4px; }
   .feed-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
@@ -112,7 +111,6 @@
   @media (max-width: 880px) {
     .kpi-grid { grid-template-columns: 1fr; }
     .row { grid-template-columns: 1fr; }
-    .row-full { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -163,12 +161,11 @@
     </div>
   </div>
 
-  <!-- กราฟสถิติรายสัปดาห์/เดือน -->
   <div class="glass panel" style="margin-bottom:16px;">
     <p class="panel-title"><span class="bar"></span>สถิติยอดขาย</p>
     <div class="tab-bar">
-      <button class="tab-btn active" onclick="switchTab('week')">รายสัปดาห์</button>
-      <button class="tab-btn" onclick="switchTab('month')">รายเดือน</button>
+      <button class="tab-btn active" onclick="switchTab(this, 'week')">รายสัปดาห์</button>
+      <button class="tab-btn" onclick="switchTab(this, 'month')">รายเดือน</button>
     </div>
     <div class="line-wrap"><canvas id="summaryChart"></canvas></div>
   </div>
@@ -184,7 +181,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzURMTP4Aa0CYdLNRAt
 const LOW_STOCK_THRESHOLD = 30;
 const COLORS = {
   amber: "#ffb454", cyan: "#2fe6ff", danger: "#ff3b5c",
-  green: "#5ed98c", grid: "rgba(255,255,255,0.06)",
+  green: "#5ed98c", grid: "rgba(255,255,255,0.04)",
   formulaCoconut: "#ffffff", formulaMuprow: "#5ed98c", formulaSweetSour: "#d2691e"
 };
 
@@ -306,8 +303,6 @@ function renderStockChart(products) {
 
 function renderSalesLine(hourlySales) {
   const ctx = document.getElementById("salesLine").getContext("2d");
-
-  // ไล่เฉดสีจาง ๆ ใต้กราฟให้ดูมีมิติ
   const gradient = ctx.createLinearGradient(0, 0, 0, 200);
   gradient.addColorStop(0, "rgba(47, 230, 255, 0.2)");
   gradient.addColorStop(1, "rgba(47, 230, 255, 0)");
@@ -369,10 +364,10 @@ function renderSalesLine(hourlySales) {
 function renderSummaryChart(tab) {
   const ctx = document.getElementById("summaryChart").getContext("2d");
   const d = summaryData[tab];
-  const labels = d.labels.length > 0 ? d.labels : [tab === "week" ? "จันทร์" : "ม.ค."];
-  const values = d.values.length > 0 ? d.values : [0];
+  const labels = d.labels.length > 0 ? d.labels : (tab === "week" ? ["จันทร์", "อังคาร", "พุธ", "พฤหัสฯ", "ศุกร์", "เสาร์", "อาทิตย์"] : ["ม.ค."]);
+  const values = d.values.length > 0 ? d.values : [0, 0, 0, 0, 0, 0, 0];
   const gradient = ctx.createLinearGradient(0, 0, 0, 220);
-  gradient.addColorStop(0, "rgba(255,180,84,0.3)");
+  gradient.addColorStop(0, "rgba(255,180,84,0.25)");
   gradient.addColorStop(1, "rgba(255,180,84,0)");
   if (summaryChart) {
     summaryChart.data.labels = labels;
@@ -384,25 +379,33 @@ function renderSummaryChart(tab) {
       data: { labels, datasets: [{
         data: values, borderColor: COLORS.amber, backgroundColor: gradient,
         borderWidth: 2.5, tension: 0.3, fill: true,
-        pointRadius: 5, pointBackgroundColor: "#07070b",
-        pointBorderColor: COLORS.amber, pointBorderWidth: 2, pointHoverRadius: 7
+        pointRadius: 4, pointBackgroundColor: "#07070b",
+        pointBorderColor: COLORS.amber, pointBorderWidth: 2, pointHoverRadius: 6
       }]},
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => "฿" + c.parsed.y.toLocaleString("th-TH") } } },
+        plugins: { 
+          legend: { display: false }, 
+          tooltip: { 
+            backgroundColor: "rgba(26, 19, 34, 0.9)",
+            titleFont: { family: "Kanit" },
+            bodyFont: { family: "Noto Sans Thai" },
+            callbacks: { label: (c) => " ยอดรวม: ฿" + c.parsed.y.toLocaleString("th-TH") } 
+          } 
+        },
         scales: {
-          y: { beginAtZero: true, grid: { color: COLORS.grid }, ticks: { color: "#8b8a99" } },
-          x: { grid: { color: COLORS.grid }, ticks: { color: "#8b8a99" } }
+          y: { beginAtZero: true, grid: { color: COLORS.grid }, ticks: { color: "#8b8a99", font: { family: "Kanit" } } },
+          x: { grid: { display: false }, ticks: { color: "#8b8a99", font: { family: "Noto Sans Thai" } } }
         }
       }
     });
   }
 }
 
-function switchTab(tab) {
+function switchTab(btnElement, tab) {
   currentTab = tab;
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  event.target.classList.add("active");
+  btnElement.classList.add("active");
   if (summaryChart) { summaryChart.destroy(); summaryChart = null; }
   renderSummaryChart(tab);
 }
@@ -411,7 +414,7 @@ function renderFeed(liveFeed) {
   const list = document.getElementById("feed-list");
   list.innerHTML = "";
   if (!liveFeed || liveFeed.length === 0) {
-    list.innerHTML = `<div class="feed-item" style="color:#8b8a99;justify-content:center;">ยังไม่มีกิจกรรมออเดอร์ในวันนี้</div>`;
+    list.innerHTML = `<div class="feed-item" style="color:#8b8a99;justify-content:center;align-items:center;height:100%;">ยังไม่มีกิจกรรมออเดอร์ในวันนี้</div>`;
     return;
   }
   liveFeed.forEach(item => {
