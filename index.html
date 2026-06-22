@@ -1,4 +1,3 @@
-HTML
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -182,17 +181,16 @@ HTML
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwPC_6TFpM4fEg7FS1T0U5cYSOH9zCUtKKlgYcp2KxiDvNqyiUhMEEzFaBZ0TLntC442g/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzHEMbdnbDrpB_DZ2A2wgJr8ObtjvfVl7OwNl_-8UUunSgQ6GCVwdWCJsHXXBX5nTenyA/exec";
 const LOW_STOCK_THRESHOLD = 30;
-// เพิ่มพาเลทสีที่ต้องการลงใน COLORS
 const COLORS = {
   amber: "#ffb454",
   cyan: "#2fe6ff",
   danger: "#ff3b5c",
   grid: "rgba(255,255,255,0.06)",
-  formulaCoconut: "#ffffff",  // สีขาว - สูตรกะทิ
-  formulaMuprow: "#5ed98c",    // สีเขียวเนื้อมะพร้าว - สูตรใส่เนื้อมะพร้าว
-  formulaSweetSour: "#d2691e" // สีน้ำตาล (Chocolate) - สูตรเปรี้ยวหวาน
+  formulaCoconut: "#ffffff",
+  formulaMuprow: "#5ed98c",
+  formulaSweetSour: "#d2691e"
 };
 
 let stockChart = null;
@@ -248,18 +246,12 @@ function renderStockChart(products) {
   const labels = products.map(p => p.name);
   const values = products.map(p => p.stock);
 
-  // แก้ไขส่วนนี้: ตรวจสอบชื่อสินค้าเพื่อกำหนดสีแท่งกราฟ
   const colors = products.map(p => {
     const name = p.name || "";
-    // ถ้าสต็อกเหลือน้อยกว่าเกณฑ์ ให้แสดงสีแดง (Danger) ก่อน
     if (p.stock < LOW_STOCK_THRESHOLD) return COLORS.danger;
-
-    // ถ้าไม่น้อยกว่าเกณฑ์ ให้เช็คชื่อเพื่อแยกตามสี
     if (name.includes("สูตรกะทิ")) return COLORS.formulaCoconut;
     if (name.includes("ใส่เนื้อมะพร้าว")) return COLORS.formulaMuprow;
     if (name.includes("สูตรเปรี้ยวหวาน")) return COLORS.formulaSweetSour;
-
-    // สีตั้งต้นสำหรับสินค้าอื่นที่ไม่มีในเงื่อนไข
     return COLORS.amber;
   });
 
