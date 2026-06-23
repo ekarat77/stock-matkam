@@ -286,12 +286,13 @@ function renderStockChart(products) {
   });
 }
 
-// ===== แก้บัค 1: gradient อัปเดตทุกครั้ง + แก้บัค 2: default ไม่โชว์ข้อมูลปลอม =====
 function renderSalesLine(hourlySales) {
   const ctx = document.getElementById("salesLine").getContext("2d");
-  const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-  gradient.addColorStop(0, "rgba(47, 230, 255, 0.2)");
-  gradient.addColorStop(1, "rgba(47, 230, 255, 0)");
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+  gradient.addColorStop(0, "rgba(47,230,255,0.45)");
+  gradient.addColorStop(0.5, "rgba(47,230,255,0.15)");
+  gradient.addColorStop(1, "rgba(47,230,255,0)");
 
   const labels = hourlySales.labels.length > 0 ? hourlySales.labels : ["--"];
   const values = hourlySales.values.length > 0 ? hourlySales.values : [0];
@@ -307,10 +308,15 @@ function renderSalesLine(hourlySales) {
       data: {
         labels: labels,
         datasets: [{
-          data: values, borderColor: "#2fe6ff", borderWidth: 3,
-          pointBackgroundColor: "#1a1322", pointBorderColor: "#2fe6ff",
-          pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6,
-          backgroundColor: gradient, fill: true, tension: 0.4
+          data: values,
+          borderColor: "#2fe6ff",
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: "#2fe6ff",
+          backgroundColor: gradient,
+          fill: true,
+          tension: 0.5
         }]
       },
       options: {
@@ -318,14 +324,24 @@ function renderSalesLine(hourlySales) {
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: "rgba(26, 19, 34, 0.9)",
+            backgroundColor: "rgba(26,19,34,0.9)",
             titleFont: { family: "Kanit" }, bodyFont: { family: "Noto Sans Thai" },
             callbacks: { label: (c) => " ยอดขาย " + c.parsed.y + " ชิ้น" }
           }
         },
         scales: {
-          y: { beginAtZero: true, grid: { color: "rgba(255,255,255,0.04)" }, ticks: { color: "#8b8a99", font: { family: "Kanit" }, stepSize: 1 } },
-          x: { grid: { display: false }, ticks: { color: "#8b8a99", font: { family: "Kanit" } } }
+          y: {
+            beginAtZero: true,
+            grid: { color: "rgba(255,255,255,0.04)" },
+            ticks: { color: "#8b8a99", font: { family: "Kanit" }, stepSize: 1 }
+          },
+          x: {
+            grid: { display: false },
+            ticks: {
+              color: "#8b8a99", font: { family: "Kanit" }, maxTicksLimit: 8,
+              maxRotation: 0
+            }
+          }
         }
       }
     });
